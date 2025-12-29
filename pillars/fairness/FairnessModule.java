@@ -13,15 +13,24 @@ public class FairnessModule {
                       EthicsResult result,
                       EthicsPolicy policy) {
 
-        double biasScore = trustyAI.computeBiasScore(
-                context.decision.getDataset(),
-                context.decision.getModel()
-        );
+        try {
+            double biasScore = trustyAI.computeBiasScore(
+                    context.decision.getDataset(),
+                    context.decision.getModel()
+            );
 
-        context.decision.setBiasScore(biasScore);
+            context.decision.setBiasScore(biasScore);
 
-        if (biasScore > policy.maxBias) {
-            result.addViolation("FAIRNESS: Bias threshold exceeded");
+            if (biasScore > policy.maxBias) {
+                result.addViolation("FAIRNESS: Bias threshold exceeded");
+            }
+
+        } catch (Exception e) {
+            // Integration failure becomes an ethics issue, not a crash
+            result.addViolation(
+                    "TRANSPARENCY: Fairness analysis unavailable (" +
+                    e.getClass().getSimpleName() + ")"
+            );
         }
     }
 }
