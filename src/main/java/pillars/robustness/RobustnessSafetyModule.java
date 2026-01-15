@@ -1,61 +1,48 @@
 package pillars.robustness;
 
-import core.*;
+import core.EthicsContext;
+import core.EthicsResult;
 import config.EthicsPolicy;
 
 /**
- * Implements robustness and safety checks including confidence validation
- * and adversarial/drift detection as described in the paper
+ * Implements Algorithm 4 from the paper: Technical robustness validation
+ * Ensures AI decisions meet minimum confidence and safety requirements
  */
 public class RobustnessSafetyModule {
     
-    private double escalationThreshold = 0.7; // Above this: approve, below minConfidence: block, between: escalate
-    private boolean detectAdversarial = true;
-    private boolean detectDrift = true;
-
     public void check(EthicsContext context, EthicsResult result, EthicsPolicy policy) {
-
         double confidence = context.decision.getConfidence();
         
-        // Three-tier confidence assessment
+        // Algorithm 4: Step 1 - Check minimum confidence threshold
         if (confidence < policy.minConfidence) {
             result.addViolation(String.format(
-                "Robustness: Confidence below threshold (%.3f < %.2f)", 
+                "ROBUSTNESS: Confidence %.2f is below minimum threshold %.2f",
                 confidence, policy.minConfidence
             ));
-        } else if (confidence < escalationThreshold) {
+            return;
+        }
+        
+        // Algorithm 4: Step 2 - Escalate borderline confidence
+        if (confidence >= policy.minConfidence && 
+            confidence < policy.escalationConfidenceThreshold) {
             result.addWarning(String.format(
-                "Robustness: Moderate confidence (%.3f)", confidence
+                "ROBUSTNESS: Confidence %.2f is borderline (threshold: %.2f)",
+                confidence, policy.escalationConfidenceThreshold
             ));
-            result.escalate("Borderline confidence requires human review");
+            result.escalate("Low confidence requires human review");
         }
         
-        // Adversarial input detection (placeholder for production ML model)
-        if (detectAdversarial && detectPotentialAdversarialInput(context)) {
-            result.addViolation("Robustness: Potential adversarial input detected");
-        }
+        // Algorithm 4: Step 3 - Validate prediction quality
+        // Additional safety checks could be implemented here
+        validateSafetyBoundaries(context, result);
+    }
+    
+    private void validateSafetyBoundaries(EthicsContext context, EthicsResult result) {
+        // Check for extreme or unsafe predictions
+        double confidence = context.decision.getConfidence();
         
-        // Model drift detection (placeholder for production statistical analysis)
-        if (detectDrift && detectModelDrift(context)) {
-            result.addWarning("Robustness: Potential model drift detected");
-            result.escalate("Model drift requires retraining assessment");
+        if (confidence > 0.99) {
+            result.addWarning("ROBUSTNESS: Extremely high confidence (>0.99) may indicate overfitting");
         }
-    }
-    
-    private boolean detectPotentialAdversarialInput(EthicsContext context) {
-        // In production: analyze input feature space for anomalies
-        // For now: simple heuristic based on extreme confidence with missing data
-        return context.decision.getConfidence() > 0.95 && 
-               context.userData.getEmail() == null;
-    }
-    
-    private boolean detectModelDrift(EthicsContext context) {
-        // In production: compare recent prediction distributions to baseline
-        // For now: always return false (no drift)
-        return false;
-    }
-    
-    public void setEscalationThreshold(double threshold) {
-        this.escalationThreshold = threshold;
     }
 }

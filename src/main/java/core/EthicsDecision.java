@@ -1,34 +1,22 @@
 package core;
 
 /**
- * Three-state decision outcome for ethics evaluation
- * As described in the paper's enforcement architecture
+ * Enum representing the final ethics decision outcome
+ * As described in paper Section IV.A
  */
 public enum EthicsDecision {
     /**
-     * Decision passes all ethics checks and can proceed
+     * Decision meets all ethical requirements and is approved
      */
     APPROVE,
     
     /**
-     * Decision violates one or more ethics policies and must be blocked
+     * Decision violates ethical policies and is blocked
      */
     BLOCK,
     
     /**
-     * Decision is ambiguous or borderline - requires human review
+     * Decision requires human review due to borderline metrics or warnings
      */
-    ESCALATE;
-    
-    public boolean isApproved() {
-        return this == APPROVE;
-    }
-    
-    public boolean isBlocked() {
-        return this == BLOCK;
-    }
-    
-    public boolean requiresHumanReview() {
-        return this == ESCALATE;
-    }
+    ESCALATE
 }

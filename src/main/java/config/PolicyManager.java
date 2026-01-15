@@ -1,16 +1,20 @@
 package config;
 
+/**
+ * Manages the active ethics policy configuration
+ */
 public class PolicyManager {
-
-    private static EthicsPolicy currentPolicy =
-            new EthicsPolicy(0.3, 0.5, true);
-
+    private static EthicsPolicy activePolicy = EthicsPolicy.defaultPolicy();
+    
     public static EthicsPolicy getPolicy() {
-        return currentPolicy;
+        return activePolicy;
     }
-
-    // Ethics Committee can update this
-    public static void updatePolicy(EthicsPolicy newPolicy) {
-        currentPolicy = newPolicy;
+    
+    public static void setPolicy(EthicsPolicy policy) {
+        activePolicy = policy;
+    }
+    
+    public static void reset() {
+        activePolicy = EthicsPolicy.defaultPolicy();
     }
 }

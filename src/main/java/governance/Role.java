@@ -1,9 +1,32 @@
 package governance;
 
+/**
+ * Defines roles in the ethics approval workflow
+ * As described in paper Section IV.C
+ */
 public enum Role {
-    DEVELOPER,
+    /**
+     * Officer responsible for ethics compliance
+     */
     ETHICS_OFFICER,
-    AUDITOR,
+    
+    /**
+     * Technical reviewer for AI model decisions
+     */
+    AI_REVIEWER,
+    
+    /**
+     * Legal compliance reviewer
+     */
+    LEGAL_REVIEWER,
+    
+    /**
+     * Administrative approver for escalated decisions
+     */
     ADMIN,
-    USER
+    
+    /**
+     * System role for automated processes
+     */
+    SYSTEM
 }
