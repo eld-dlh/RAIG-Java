@@ -22,14 +22,19 @@ public class RobustnessSafetyModule {
             return;
         }
         
-        // Algorithm 4: Step 2 - Escalate borderline confidence
-        if (confidence >= policy.minConfidence && 
+        // Algorithm 4: Step 2 - Warn on borderline confidence (0.6-0.7)
+        if (confidence >= policy.warningConfidenceThreshold && 
             confidence < policy.escalationConfidenceThreshold) {
             result.addWarning(String.format(
-                "ROBUSTNESS: Confidence %.2f is borderline (threshold: %.2f)",
-                confidence, policy.escalationConfidenceThreshold
+                "ROBUSTNESS: Confidence %.2f is borderline (%.2f-%.2f)",
+                confidence, policy.warningConfidenceThreshold, policy.escalationConfidenceThreshold
             ));
-            result.escalate("Low confidence requires human review");
+        }
+        
+        // Algorithm 4: Step 3 - Escalate low confidence (0.5-0.7)
+        if (confidence >= policy.minConfidence && 
+            confidence < policy.escalationConfidenceThreshold) {
+            result.escalate("Confidence below threshold requires human review");
         }
         
         // Algorithm 4: Step 3 - Validate prediction quality

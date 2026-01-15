@@ -9,8 +9,9 @@ public class EthicsPolicy {
     public double maxBias = 0.3;
     
     // Robustness thresholds
-    public double minConfidence = 0.3;
-    public double escalationConfidenceThreshold = 0.6;
+    public double minConfidence = 0.5;
+    public double warningConfidenceThreshold = 0.6;
+    public double escalationConfidenceThreshold = 0.7;
     
     // Privacy settings
     public boolean requireConsent = true;
@@ -18,6 +19,8 @@ public class EthicsPolicy {
     
     // Transparency settings
     public boolean requireExplanation = true;
+    public double minExplanationQuality = 0.5;
+    public double warningExplanationQuality = 0.7;
     
     // Accountability settings
     public boolean requireResponsibleEntity = true;

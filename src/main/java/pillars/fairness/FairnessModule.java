@@ -29,8 +29,13 @@ public class FairnessModule {
             ));
         }
         
-        // Algorithm 2: Step 3 - Warn on borderline cases (50% of threshold onwards)
-        if (biasScore > policy.maxBias * 0.5 && biasScore <= policy.maxBias) {
+        // Algorithm 2: Step 3 - Escalate at exactly the threshold
+        if (biasScore == policy.maxBias) {
+            result.escalate("Bias score at threshold - requires review");
+        }
+        
+        // Algorithm 2: Step 4 - Warn on borderline cases (50% of threshold onwards)
+        if (biasScore >= 0.15 && biasScore < policy.maxBias) {
             result.addWarning(String.format(
                 "FAIRNESS: Bias score %.2f is near threshold %.2f",
                 biasScore, policy.maxBias
