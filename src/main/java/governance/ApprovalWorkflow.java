@@ -1,79 +1,48 @@
 package governance;
 
 import core.EthicsResult;
-import core.EthicsContext;
 import core.EthicsDecision;
+import data.DecisionHistory;
 
 /**
- * Enhanced approval workflow with three-state decision support and escalation queue
- * Implements the human oversight workflow from the paper
+ * Manages approval workflow for ethics decisions
+ * Implements governance layer as described in paper Section IV.C
  */
 public class ApprovalWorkflow {
-
-    private RoleManager roleManager = new RoleManager();
-    private EscalationQueue escalationQueue = new EscalationQueue(1000);
-
+    private DecisionHistory history;
+    
+    public ApprovalWorkflow() {
+        this.history = new DecisionHistory();
+    }
+    
     /**
-     * Process ethics result with three-state logic: APPROVE, BLOCK, or ESCALATE
-     * Returns final approval decision after human review if needed
+     * Approves a decision based on result and approver role
      */
-    public boolean processDecision(EthicsContext context, EthicsResult result, String userEmail) {
+    public boolean approve(EthicsResult result, Role approverRole) {
+        // Log decision
+        history.record(result);
         
-        // Case 1: Decision is approved - no action needed
-        if (result.isApproved()) {
-            return true;
-        }
-        
-        // Case 2: Decision requires escalation - add to review queue
-        if (result.requiresEscalation()) {
-            EscalationQueue.EscalatedDecision escalated = escalationQueue.escalate(
-                context, 
-                result, 
-                result.getEscalationReason()
-            );
-            
-            // In production, this would notify reviewers and wait for response
-            // For now, auto-escalate to ethics officer
-            return escalated != null;
-        }
-        
-        // Case 3: Decision is blocked - check for authorized override
+        // Blocked decisions cannot be approved
         if (result.isBlocked()) {
-            return reviewAndOverride(result, userEmail);
+            return false;
         }
         
-        return false;
-    }
-
-    /**
-     * If an ethics violation is found, a privileged user (ETHICS_OFFICER)
-     * can review and override the decision if justified.
-     */
-    public boolean reviewAndOverride(EthicsResult result, String userEmail) {
-        if (!result.isBlocked()) {
-            return true; // no override needed
+        // Escalated decisions require specific roles
+        if (result.requiresEscalation()) {
+            return canApproveEscalation(approverRole);
         }
-
-        boolean hasPrivilege = roleManager.hasRole(userEmail, Role.ETHICS_OFFICER);
-        if (hasPrivilege) {
-            // Placeholder: in practice, user would provide justification
-            return true; // approved by override
-        }
-
-        return false; // stay blocked
+        
+        // Approved decisions pass through
+        return result.isApproved();
     }
     
-    // Legacy compatibility method
-    public boolean approve(EthicsResult result, Role role) {
-        if (!result.isApproved()) return false;
-        return RoleManager.canApprove(role);
+    private boolean canApproveEscalation(Role role) {
+        return role == Role.ETHICS_OFFICER || 
+               role == Role.ADMIN || 
+               role == Role.LEGAL_REVIEWER;
     }
     
-    public EscalationQueue getEscalationQueue() {
-        return escalationQueue;
-    }
-    
-    public int getPendingEscalations() {
-        return escalationQueue.size();
+    public DecisionHistory getHistory() {
+        return history;
     }
 }

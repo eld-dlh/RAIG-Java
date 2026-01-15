@@ -1,133 +1,108 @@
 package core;
 
+import config.EthicsPolicy;
 import config.PolicyManager;
-import communication.FeedbackService;
-import pillars.accountability.*;
-import pillars.fairness.*;
-import pillars.human.*;
-import pillars.privacy.*;
-import pillars.robustness.*;
-import pillars.transparency.*;
-import pillars.wellbeing.*;
+import pillars.accountability.AccountabilityModule;
+import pillars.fairness.FairnessModule;
+import pillars.human.HumanOversightModule;
+import pillars.privacy.PrivacyGovernanceModule;
+import pillars.robustness.RobustnessSafetyModule;
+import pillars.transparency.TransparencyModule;
+import pillars.wellbeing.WellBeingModule;
 
 /**
- * Implements Algorithm 1 from the paper: Ethics Engine with fail-fast logic
- * Orchestrates evaluation across all policy modules and determines enforcement
+ * Core ethics engine implementing the RAIG framework
+ * Orchestrates all seven pillar modules as described in paper Section IV
  */
 public class EthicsEngine {
-
-    private PrivacyGovernanceModule privacy = new PrivacyGovernanceModule();
-    private WellBeingModule wellbeing = new WellBeingModule();
-    private FairnessModule fairness = new FairnessModule();
-    private RobustnessSafetyModule robustness = new RobustnessSafetyModule();
-    private TransparencyModule transparency = new TransparencyModule();
-    private HumanOversightModule human = new HumanOversightModule();
-    private AccountabilityModule accountability = new AccountabilityModule();
+    private AccountabilityModule accountabilityModule;
+    private FairnessModule fairnessModule;
+    private HumanOversightModule humanOversightModule;
+    private PrivacyGovernanceModule privacyModule;
+    private RobustnessSafetyModule robustnessModule;
+    private TransparencyModule transparencyModule;
+    private WellBeingModule wellBeingModule;
     
-    private boolean failFast = true;
-    private boolean auditAllDecisions = true;
+    // Statistics tracking
+    private int evaluationCount = 0;
+    private int blockedCount = 0;
+    private int escalatedCount = 0;
     
-    private long evaluationCount = 0;
-    private long blockedCount = 0;
-    private long escalatedCount = 0;
-
+    public EthicsEngine() {
+        this.accountabilityModule = new AccountabilityModule();
+        this.fairnessModule = new FairnessModule();
+        this.humanOversightModule = new HumanOversightModule();
+        this.privacyModule = new PrivacyGovernanceModule();
+        this.robustnessModule = new RobustnessSafetyModule();
+        this.transparencyModule = new TransparencyModule();
+        this.wellBeingModule = new WellBeingModule();
+    }
+    
     /**
-     * Algorithm 1: Intercept and evaluate AI decision
-     * Returns: APPROVE, BLOCK, or ESCALATE
+     * Main interception point for AI decisions
+     * Evaluates decision against all seven ethics pillars
      */
     public EthicsResult intercept(EthicsContext context) {
         evaluationCount++;
-        long startTime = System.nanoTime();
-
         EthicsResult result = new EthicsResult();
-
-        try {
-            // PRE-AI checks (fail-fast on critical violations)
-            privacy.check(context, result);
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-            
-            wellbeing.check(context, result);
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-
-            // POST-AI checks
-            fairness.check(context, result, PolicyManager.getPolicy());
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-            
-            robustness.check(context, result, PolicyManager.getPolicy());
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-            
-            transparency.check(context, result, PolicyManager.getPolicy());
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-            
-            human.check(context, result);
-            if (failFast && result.isBlocked()) {
-                return logAndReturn(result, context, startTime);
-            }
-
-            // RELATIONAL override
-            if (FeedbackService.hasCriticalFeedback()) {
-                result.addViolation("Blocked due to critical stakeholder feedback");
-            }
-
-            // FINAL accountability
-            accountability.check(context, result);
-            
-            return logAndReturn(result, context, startTime);
-            
-        } catch (Exception e) {
-            result.addViolation("SYSTEM: Unexpected error during evaluation - " + e.getMessage());
-            return logAndReturn(result, context, startTime);
-        }
-    }
-    
-    private EthicsResult logAndReturn(EthicsResult result, EthicsContext context, long startTime) {
-        long latencyNanos = System.nanoTime() - startTime;
-        double latencyMs = latencyNanos / 1_000_000.0;
+        EthicsPolicy policy = PolicyManager.getPolicy();
         
+        // Execute all pillar checks
+        // Order matters: fail-fast on critical violations
+        
+        // 1. Privacy - critical, must pass first
+        privacyModule.check(context, result);
+        if (result.isBlocked()) {
+            blockedCount++;
+            return result;
+        }
+        
+        // 2. Accountability - required for all decisions
+        accountabilityModule.check(context, result, policy);
+        
+        // 3. Fairness - check for bias
+        fairnessModule.check(context, result, policy);
+        
+        // 4. Robustness - validate technical quality
+        robustnessModule.check(context, result, policy);
+        
+        // 5. Transparency - ensure explainability
+        transparencyModule.check(context, result, policy);
+        
+        // 6. Human Oversight - flag for review if needed
+        humanOversightModule.check(context, result, policy);
+        
+        // 7. Well-being - assess societal impact
+        wellBeingModule.check(context, result, policy);
+        
+        // Update statistics
         if (result.isBlocked()) {
             blockedCount++;
         } else if (result.requiresEscalation()) {
             escalatedCount++;
         }
         
-        if (auditAllDecisions) {
-            logAuditTrail(context, result, latencyMs);
-        }
-        
         return result;
     }
     
-    private void logAuditTrail(EthicsContext context, EthicsResult result, double latencyMs) {
-        // In production, this would write to structured audit log
-        System.out.printf("[AUDIT] Decision: %s | Result: %s | Latency: %.2fms | Violations: %d%n",
-            context.decision.getDecisionLabel(),
-            result.getFinalDecision(),
-            latencyMs,
-            result.getViolations().size()
-        );
+    // Statistics methods
+    public int getEvaluationCount() {
+        return evaluationCount;
     }
     
-    public void setFailFast(boolean failFast) {
-        this.failFast = failFast;
+    public int getBlockedCount() {
+        return blockedCount;
     }
     
-    public long getEvaluationCount() { return evaluationCount; }
-    public long getBlockedCount() { return blockedCount; }
-    public long getEscalatedCount() { return escalatedCount; }
-    public double getBlockRate() { 
+    public int getEscalatedCount() {
+        return escalatedCount;
+    }
+    
+    public double getBlockRate() {
         return evaluationCount > 0 ? (double) blockedCount / evaluationCount : 0.0;
     }
-    public double getEscalationRate() { 
+    
+    public double getEscalationRate() {
         return evaluationCount > 0 ? (double) escalatedCount / evaluationCount : 0.0;
     }
 }

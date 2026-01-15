@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAIG-Java - Responsible AI Governance Framework</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 2px solid #334155;
+            margin-bottom: 3rem;
+        }
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+        .alert {
+            background: linear-gradient(135deg, #0c4a6e, #075985);
+            border: 2px solid #0ea5e9;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .alert h3 {
+            color: #38bdf8;
+            margin-bottom: 0.5rem;
+        }
+        .pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .pillar-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        .pillar-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        .pillar-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .pillar-card h3 {
+            color: #3b82f6;
+            margin-bottom: 0.75rem;
+        }
+        .pillar-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 16px;
+            padding: 3rem;
+            margin: 3rem 0;
+            text-align: center;
+        }
+        .cta-section h2 {
+            color: #3b82f6;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .metric-box {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        .metric-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 2px solid #334155;
+            margin-top: 3rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ RAIG-Java</h1>
+            <p class="subtitle">Responsible AI Governance Framework for Decision-Level Guardrails</p>
+        </header>
+
+        <div class="alert">
+            <h3>📖 Demo Page - Full Application Requires Local Setup</h3>
+            <p>This is a static demonstration page. To run the full interactive web interface with backend API, please clone the repository and follow the setup instructions below.</p>
+        </div>
+
+        <section>
+            <h2 style="text-align: center; margin: 2rem 0; color: #3b82f6;">Seven Pillars of Responsible AI</h2>
+            <div class="pillars">
+                <div class="pillar-card">
+                    <div class="pillar-icon">👤</div>
+                    <h3>1. Accountability</h3>
+                    <p>Ensures clear responsibility for AI decisions. Every decision must have a responsible entity assigned for audit trails and governance.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">⚖️</div>
+                    <h3>2. Fairness & Non-Discrimination</h3>
+                    <p>Detects and prevents bias in AI decisions. Monitors demographic parity and ensures equal treatment across protected groups.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">👥</div>
+                    <h3>3. Human Agency & Oversight</h3>
+                    <p>Escalates critical or ambiguous decisions to human reviewers. Ensures humans remain in control of high-stakes outcomes.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🔒</div>
+                    <h3>4. Privacy & Data Governance</h3>
+                    <p>Enforces consent requirements and data minimization. Protects user privacy through strict access controls.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🛡️</div>
+                    <h3>5. Technical Robustness & Safety</h3>
+                    <p>Validates prediction confidence and detects anomalies. Ensures AI systems operate reliably under uncertainty.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🔍</div>
+                    <h3>6. Transparency & Explainability</h3>
+                    <p>Requires interpretable explanations for all decisions. Makes AI reasoning understandable to stakeholders.</p>
+                </div>
+                <div class="pillar-card">
+                    <div class="pillar-icon">🌍</div>
+                    <h3>7. Societal & Environmental Well-Being</h3>
+                    <p>Considers broader societal impact. Aligns AI decisions with organizational and community values.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 style="text-align: center; margin: 2rem 0; color: #3b82f6;">Performance Metrics</h2>
+            <div class="metrics">
+                <div class="metric-box">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Test Pass Rate</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">0.02ms</div>
+                    <div class="metric-label">Average Latency</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">2,882</div>
+                    <div class="metric-label">Decisions/Second</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-value">750x</div>
+                    <div class="metric-label">Faster Than Target</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="cta-section">
+            <h2>🚀 Get Started</h2>
+            <p style="margin-bottom: 2rem; color: #94a3b8;">Run the full interactive web interface locally:</p>
+            
+            <a href="https://github.com/TECQNIO/RAIG-Java" class="btn">📂 View on GitHub</a>
+            <a href="https://github.com/TECQNIO/RAIG-Java/blob/main/START_HERE.md" class="btn">📖 Setup Instructions</a>
+            
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #334155;">
+                <h3 style="color: #e2e8f0; margin-bottom: 1rem;">Quick Start</h3>
+                <div style="background: #0f172a; padding: 1.5rem; border-radius: 8px; text-align: left; max-width: 600px; margin: 0 auto;">
+                    <code style="color: #38bdf8; display: block; margin-bottom: 0.5rem;"># Clone the repository</code>
+                    <code style="color: #e2e8f0; display: block; margin-bottom: 1rem;">git clone https://github.com/TECQNIO/RAIG-Java.git</code>
+                    
+                    <code style="color: #38bdf8; display: block; margin-bottom: 0.5rem;"># Navigate to project</code>
+                    <code style="color: #e2e8f0; display: block; margin-bottom: 1rem;">cd RAIG-Java</code>
+                    
+                    <code style="color: #38bdf8; display: block; margin-bottom: 0.5rem;"># Run the server</code>
+                    <code style="color: #e2e8f0; display: block; margin-bottom: 1rem;">.\start-server.ps1</code>
+                    
+                    <code style="color: #38bdf8; display: block; margin-bottom: 0.5rem;"># Open browser</code>
+                    <code style="color: #e2e8f0; display: block;">http://localhost:8080</code>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>📄 Research Paper: "Operationalizing Responsible AI Governance Through a Modular Java Framework"</p>
+            <p style="margin-top: 0.5rem;">Papagiannidis et al. (2025)</p>
+            <p style="margin-top: 1rem;">Built with Java 17 | Maven 3.9.11 | 100% Open Source</p>
+        </footer>
+    </div>
+</body>
+</html>

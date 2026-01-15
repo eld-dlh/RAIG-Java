@@ -1,29 +1,34 @@
 package governance;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * Manages role assignments and permissions
+ */
 public class RoleManager {
-
-    private Map<String, Role> userRoles = new HashMap<>();
-
+    private Map<String, Set<Role>> userRoles;
+    
     public RoleManager() {
-        // Default roles for testing
-        userRoles.put("admin@example.com", Role.ADMIN);
-        userRoles.put("ethics@example.com", Role.ETHICS_OFFICER);
-        userRoles.put("user@example.com", Role.USER);
+        this.userRoles = new HashMap<>();
+        initializeDefaultRoles();
     }
-
-    public boolean hasRole(String userEmail, Role role) {
-        Role userRole = userRoles.getOrDefault(userEmail, Role.USER);
-        return userRole == role;
+    
+    private void initializeDefaultRoles() {
+        // Set up default test users
+        assignRole("admin@system.com", Role.ADMIN);
+        assignRole("ethics@system.com", Role.ETHICS_OFFICER);
+        assignRole("ai-reviewer@system.com", Role.AI_REVIEWER);
     }
-
-    public static boolean canApprove(Role role) {
-        return role == Role.ETHICS_OFFICER || role == Role.ADMIN;
+    
+    public void assignRole(String userId, Role role) {
+        userRoles.computeIfAbsent(userId, k -> new HashSet<>()).add(role);
     }
-
-    public static boolean canDeploy(Role role) {
-        return role == Role.ADMIN;
+    
+    public boolean hasRole(String userId, Role role) {
+        return userRoles.getOrDefault(userId, Collections.emptySet()).contains(role);
+    }
+    
+    public Set<Role> getRoles(String userId) {
+        return userRoles.getOrDefault(userId, Collections.emptySet());
     }
 }
