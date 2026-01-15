@@ -27,7 +27,7 @@ public class Main {
     private static EthicsEngine engine;
     private static ApprovalWorkflow workflow;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         // Initialize RAIG framework
         EthicsPolicy policy = EthicsPolicy.defaultPolicy();
         RoleManager roleManager = new RoleManager();
@@ -55,12 +55,6 @@ public class Main {
         System.out.println("  - POST /api/evaluate   - Evaluate an AI decision");
         System.out.println("  - GET  /api/scenarios  - Get demo scenarios");
         System.out. println("==============================================");
-        
-        // Keep server running indefinitely
-        System.out.println("Press Ctrl+C to stop the server...");
-        while (true) {
-            Thread.sleep(Long.MAX_VALUE);
-        }
     }
 
     /**
@@ -201,39 +195,16 @@ public class Main {
             StringBuilder json = new StringBuilder();
             json.append("{\n");
             json.append("  \"approved\": ").append(approved).append(",\n");
-            json.append("  \"decisionState\": \"").append(result.getFinalDecision()).append("\",\n");
             json.append("  \"hasViolations\": ").append(result.hasViolations()).append(",\n");
-            json.append("  \"requiresEscalation\": ").append(result.requiresEscalation()).append(",\n");
-            
-            // Violations
             json.append("  \"violations\": [");
+            
             List<String> violations = result.getViolations();
             for (int i = 0; i < violations.size(); i++) {
                 json.append("\"").append(escapeJSON(violations.get(i))).append("\"");
                 if (i < violations.size() - 1) json.append(", ");
             }
+            
             json.append("],\n");
-            
-            // Warnings
-            json.append("  \"warnings\": [");
-            List<String> warnings = result.getWarnings();
-            for (int i = 0; i < warnings.size(); i++) {
-                json.append("\"").append(escapeJSON(warnings.get(i))).append("\"");
-                if (i < warnings.size() - 1) json.append(", ");
-            }
-            json.append("],\n");
-            
-            // Escalation reason
-            String escalationReason = result.getEscalationReason();
-            json.append("  \"escalationReason\": ");
-            if (escalationReason != null) {
-                json.append("\"").append(escapeJSON(escalationReason)).append("\"");
-            } else {
-                json.append("null");
-            }
-            json.append(",\n");
-            
-            // Decision details
             json.append("  \"decision\": {\n");
             json.append("    \"label\": \"").append(escapeJSON(decision.getDecisionLabel())).append("\",\n");
             json.append("    \"confidence\": ").append(decision.getConfidence()).append(",\n");
@@ -328,23 +299,6 @@ public class Main {
                     "hasSensitiveData": "false"
                   },
                   "expectedResult": "BLOCKED"
-                },
-                {
-                  "id": 5,
-                  "name": "Borderline Confidence",
-                  "description": "Moderate confidence triggers escalation for human review",
-                  "data": {
-                    "decisionLabel": "Investment Recommendation",
-                    "confidence": "0.65",
-                    "responsibleEntity": "PortfolioAI_v2",
-                    "explanation": "Moderate risk profile",
-                    "userName": "Eve",
-                    "userEmail": "eve@investment.com",
-                    "hasConsent": "true",
-                    "hasSensitiveData": "false",
-                    "biasScore": "0.15"
-                  },
-                  "expectedResult": "ESCALATE"
                 }
               ]
             }
@@ -761,12 +715,6 @@ public class Main {
                         box-shadow: 0 4px 12px rgba(239,68,68,0.3);
                     }
 
-                    .scenario-badge.escalate {
-                        background: linear-gradient(135deg, #f59e0b, #d97706);
-                        color: #fff;
-                        box-shadow: 0 4px 12px rgba(245,158,11,0.3);
-                    }
-
                     .form-group {
                         margin-bottom: 1.5rem;
                     }
@@ -861,13 +809,6 @@ public class Main {
                         border-color: #ef4444;
                         display: block;
                         box-shadow: 0 8px 32px rgba(239,68,68,0.3);
-                    }
-
-                    .result.escalate {
-                        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
-                        border-color: #f59e0b;
-                        display: block;
-                        box-shadow: 0 8px 32px rgba(245,158,11,0.3);
                     }
 
                     .result h3 {
@@ -1183,15 +1124,13 @@ public class Main {
                                 scenarioEl.className = 'scenario-card';
                                 scenarioEl.onclick = () => runScenario(scenario.data);
                                 
-                                const badgeClass = scenario.expectedResult === 'APPROVED' ? 'approved' : 
-                                                   scenario.expectedResult === 'ESCALATE' ? 'escalate' : 'blocked';
+                                const badgeClass = scenario.expectedResult === 'APPROVED' ? 'approved' : 'blocked';
                                 
                                 scenarioEl.innerHTML = `
                                     <h4>${scenario.name}</h4>
                                     <p>${scenario.description}</p>
                                     <span class="scenario-badge ${badgeClass}">
-                                        ${scenario.expectedResult === 'APPROVED' ? '✓' : 
-                                         scenario.expectedResult === 'ESCALATE' ? '⚠' : '✗'} ${scenario.expectedResult}
+                                        ${scenario.expectedResult === 'APPROVED' ? '✓' : '✗'} ${scenario.expectedResult}
                                     </span>
                                 `;
                                 
@@ -1252,21 +1191,9 @@ public class Main {
                     // Display evaluation result
                     function displayResult(result) {
                         const resultContainer = document.getElementById('result-container');
-                        // Three-state decision rendering
-                        let resultClass, icon, status;
-                        if (result.decisionState === 'ESCALATE') {
-                            resultClass = 'escalate';
-                            icon = '⚠️';
-                            status = 'ESCALATED';
-                        } else if (result.approved) {
-                            resultClass = 'approved';
-                            icon = '✅';
-                            status = 'APPROVED';
-                        } else {
-                            resultClass = 'blocked';
-                            icon = '❌';
-                            status = 'BLOCKED';
-                        }
+                        const resultClass = result.approved ? 'approved' : 'blocked';
+                        const icon = result.approved ? '✅' : '❌';
+                        const status = result.approved ? 'APPROVED' : 'BLOCKED';
                         
                         let html = `
                             <div class="result ${resultClass}">
@@ -1289,36 +1216,7 @@ public class Main {
                                     ${result.violations.map(v => `<li>🚫 ${v}</li>`).join('')}
                                 </ul>
                             `;
-                        }
-                        
-                        // Display warnings (non-fatal issues)
-                        if (result.warnings && result.warnings.length > 0) {
-                            html += `
-                                <h4 style="margin-top: 1.5rem; color: #d97706; font-size: 1.25rem;">
-                                    ⚠️ Warnings (${result.warnings.length})
-                                </h4>
-                                <ul class="violations">
-                                    ${result.warnings.map(w => `<li>⚠️ ${w}</li>`).join('')}
-                                </ul>
-                            `;
-                        }
-                        
-                        // Display escalation reason
-                        if (result.escalationReason) {
-                            html += `
-                                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(245,158,11,0.1); 
-                                     border-radius: 8px; border-left: 3px solid #f59e0b;">
-                                    <p style="margin: 0; font-weight: 700; color: #92400e; font-size: 1.1rem;">
-                                        🔔 Escalation Required
-                                    </p>
-                                    <p style="margin: 0.5rem 0 0 0; color: #78350f;">
-                                        ${result.escalationReason}
-                                    </p>
-                                </div>
-                            `;
-                        }
-                        
-                        if (result.violations.length === 0 && (!result.warnings || result.warnings.length === 0) && !result.escalationReason) {
+                        } else {
                             html += `
                                 <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(16,185,129,0.1); 
                                      border-radius: 8px; border-left: 3px solid #10b981;">
