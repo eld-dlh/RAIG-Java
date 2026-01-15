@@ -14,12 +14,16 @@ public class FairnessModule {
                       EthicsPolicy policy) {
 
         try {
-            double biasScore = trustyAI.computeBiasScore(
-                    context.decision.getDataset(),
-                    context.decision.getModel()
-            );
-
-            context.decision.setBiasScore(biasScore);
+            double biasScore = context.decision.getBiasScore();
+            
+            // Only compute bias if not already provided
+            if (biasScore == 0.0) {
+                biasScore = trustyAI.computeBiasScore(
+                        context.decision.getDataset(),
+                        context.decision.getModel()
+                );
+                context.decision.setBiasScore(biasScore);
+            }
 
             if (biasScore > policy.maxBias) {
                 result.addViolation("FAIRNESS: Bias threshold exceeded");

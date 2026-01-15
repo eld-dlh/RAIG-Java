@@ -35,6 +35,10 @@ public class EthicsResult {
         return hasViolations();
     }
 
+    public boolean isApproved() {
+        return !hasViolations();
+    }
+
     /* ---------------- Debug / Demo ---------------- */
 
     @Override

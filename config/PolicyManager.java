@@ -3,7 +3,7 @@ package config;
 public class PolicyManager {
 
     private static EthicsPolicy currentPolicy =
-            new EthicsPolicy(0.6, 0.5, true);
+            new EthicsPolicy(0.3, 0.5, true);
 
     public static EthicsPolicy getPolicy() {
         return currentPolicy;

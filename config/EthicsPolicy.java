@@ -10,4 +10,8 @@ public class EthicsPolicy {
         this.minConfidence = minConfidence;
         this.requireExplanation = requireExplanation;
     }
+
+    public static EthicsPolicy defaultPolicy() {
+        return new EthicsPolicy(0.3, 0.5, true);
+    }
 }
